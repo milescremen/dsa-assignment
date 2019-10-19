@@ -55,6 +55,14 @@ public class DSAGraph
             }
         }
 
+        public void removeEdge(DSAGraphVertex vertex)
+        {
+            if(isAdjacent(this.getLabel(), vertex.getLabel()))
+            {
+                links.remove(vertex);
+            }
+        }
+
         public void setVisited()
         {
             this.visited = true;
@@ -77,7 +85,7 @@ public class DSAGraph
             {
                 adjacent += ((DSAGraphVertex)iter.next()).getLabel() + " ";
             }
-            return this.getLabel() + " has the links: " + adjacent; 
+            return this.getLabel() + " : " + adjacent; 
         }
     }
 
@@ -98,6 +106,23 @@ public class DSAGraph
         }
     }
 
+    public void removeVertex(String label)
+    {
+        DSAGraphVertex vertex = getVertex(label);
+        String edgeName;
+        if(this.hasVertex(label))
+        {
+            Iterator iter = vertex.getAdjacent().iterator();
+            edgeName = ((DSAGraphVertex)iter.next()).getLabel();
+            while(iter.hasNext())
+            {
+                removeEdge(label, edgeName);
+                edgeName = ((DSAGraphVertex)iter.next()).getLabel();
+            }
+            this.vertices.remove(label);
+        }
+    }
+
     public void addEdge(String labelOne, String labelTwo)
     {   
         /* Get the vertex value that matches with the imported label from the 
@@ -109,13 +134,24 @@ public class DSAGraph
 
         /* Adds each vertex to the other vertex's links list */
         vertexOne.addEdge(vertexTwo);
-        vertexTwo.addEdge(vertexOne);
+        /* vertexTwo.addEdge(vertexOne); */
+    }
+
+    public void removeEdge(String labelOne, String labelTwo)
+    {
+        DSAGraphVertex vertexOne;
+        DSAGraphVertex vertexTwo;
+        vertexOne = getVertex(labelOne);
+        vertexTwo = getVertex(labelTwo);
+
+        vertexOne.removeEdge(vertexTwo);
     }
 
     /* Iterates through the vertices stored in the linked list and 
         returns true if there is a match found with the imported label */
     public boolean hasVertex(String label)
     {
+        DSAGraphVertex temp;
         boolean hasVertex = false;
         Iterator iter = vertices.iterator();
         //Can't use iter.next() to check and stop iteration early because
@@ -123,7 +159,9 @@ public class DSAGraph
         //Could fix using a temp variable but for now cbf
         while(iter.hasNext())// && !iter.next().equals(label))
         {
-            if(((DSAGraphVertex)iter.next()).getLabel().equals(label))
+            temp = (DSAGraphVertex)iter.next();
+            System.out.println(temp);
+            if(temp.getLabel().equals(label))
             {
                 hasVertex = true;
             }
@@ -235,112 +273,5 @@ public class DSAGraph
         System.out.println(output);
     }
 
-    public void breadthFirstSearch(String startLabel)
-    {
-        DSAGraphVertex vertex;
-        DSALinkedList adjacent;
-        DSAQueue queue;
-        DSALinkedList traversal;
-        DSAGraphVertex temp;
-
-        queue = new DSAQueue();
-        traversal = new DSALinkedList();
-
-        vertex = getVertex(startLabel); //Convert label to Vertex
-
-        //Resetting all vertices visit flag
-        for(Iterator iter = vertices.iterator(); iter.hasNext();)
-        {
-            ((DSAGraphVertex)iter.next()).clearVisited();
-        }
-
-        queue.enqueue(vertex);     //Add the first vertex to the queue
-        vertex.setVisited();            //Sets the vertex as visited
-        traversal.insertLast(vertex);   //Adds the first vertex to the traversal linked list
-        //Add vertices to queue and traversal
-
-        while(!queue.isEmpty()) //Runs the loop until the queue is empty (traversal is finished)
-        {
-            vertex = (DSAGraphVertex)queue.dequeue();
-            //System.out.println("vertex" + vertex);
-            adjacent = vertex.getAdjacent(); //Get the adjacent vertices
-            //System.out.println("yeet");
-            //Iterate through those adjacent vertices adding them to the queue
-            //and the traversal (if they haven't been visited) 
-            for(Iterator iter = adjacent.iterator(); iter.hasNext();)
-            {
-                //System.out.println("hello");
-                temp = (DSAGraphVertex)iter.next();
-                //System.out.println(temp);
-                if(!temp.getVisited())
-                {
-                    temp.setVisited();
-                    queue.enqueue(temp); //Add adjacent vertices to queue
-                    traversal.insertLast(temp); //Add adjacent vertices to traversal 
-                }
-            }
-        } 
-
-        //Iterates throught the traversal and prints it
-        //We could return the traversal if we ever wanted to use it
-        for(Iterator iter = traversal.iterator(); iter.hasNext();)
-        {
-            System.out.print(((DSAGraphVertex)iter.next()).getLabel() + " ");
-        }
-        System.out.println();
-
-    }
-
-    public void depthFirstSearch(String startLabel)
-    {
-        DSAStack stack;
-        DSALinkedList traversal;
-        DSAGraphVertex next;
-        DSALinkedList adjacent;
-        DSAGraphVertex temp;
-
-        stack = new DSAStack();
-        traversal = new DSALinkedList();
-
-        stack.push(getVertex(startLabel));
-        //traversal.insertLast(getVertex(startLabel));
-        getVertex(startLabel).setVisited();
-
-        //Resetting all vertices visit flag
-        for(Iterator iter = vertices.iterator(); iter.hasNext();)
-        {
-            ((DSAGraphVertex)iter.next()).clearVisited();
-        }
-
-        while(!stack.isEmpty())
-        {
-            next = (DSAGraphVertex)stack.pop(); //Pop the next node off the stack
-            if(!next.getVisited()) //If that node hasn't been visited, add to traversal
-            {
-                traversal.insertLast(next);
-                next.setVisited(); //Set that node as visited, so next time doesn't enter the if
-            }
-            
-            adjacent = next.getAdjacent(); //Get the adjacent nodes 
-            //Iterate through the adjacent nodes, if they haven't been visited then 
-            //add the to the stack to be visited later
-            for(Iterator iter = adjacent.iterator(); iter.hasNext();)
-            {
-                temp = (DSAGraphVertex)iter.next();
-                if(!temp.getVisited())
-                {
-                    stack.push(temp);
-                }
-            }
-        }
-
-
-        //Iterates throught the traversal and prints it
-        //We could return the traversal if we ever wanted to use it
-        for(Iterator iter = traversal.iterator(); iter.hasNext();)
-        {
-            System.out.print(((DSAGraphVertex)iter.next()).getLabel() + " ");
-        }
-        System.out.println();
-    }
+   
 }

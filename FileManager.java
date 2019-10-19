@@ -8,14 +8,13 @@ import java.io.*;
 
 public class FileManager
 {
-    public static void readFile(String fileName, DSAGraph graph)
+    public static void loadNetwork(String fileName, DSAGraph graph)
     {
         FileInputStream fileStrm = null;
         InputStreamReader rdr;
         BufferedReader bufRdr;
         String line;
         String[] split;
-
         try
         {
             fileStrm = new FileInputStream(fileName);
@@ -29,10 +28,12 @@ public class FileManager
                 split = line.split(":");
                 if(split.length == 1)
                 {
-                    graph.addVertex(split[0], split[0]);
+                    graph.addVertex(split[0], new Person(split[0]));
                 }
                 else if(split.length == 2)
                 {
+                    graph.addVertex(split[0], new Person(split[0]));
+                    graph.addVertex(split[1], new Person(split[1]));
                     graph.addEdge(split[0], split[1]);
                 }
                 line = bufRdr.readLine();

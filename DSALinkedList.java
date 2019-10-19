@@ -230,6 +230,55 @@ public class DSALinkedList implements Iterable, Serializable
         }
         return nodeValue;
     }
+
+    public Object remove(Object inObject)
+    {
+        Object nodeValue;
+        DSAListNode node;
+        DSAListNode next;
+        DSAListNode prev;
+
+        if(isEmpty())
+        {
+            throw new IllegalArgumentException("ERROR: List is empty");
+        }
+        else if(head.getNext() == null)
+        {
+            nodeValue = head.getValue();
+            head = head.getNext();
+        }
+        else
+        {
+            Iterator iter = iterator();
+            nodeValue = iter.next();
+            while(iter.hasNext() && !inObject.equals(nodeValue))
+            {
+                nodeValue = iter.next();
+            }
+
+            if(inObject.equals(nodeValue))
+            {
+                //Sets the previous's next 
+                node = (DSAListNode)inObject;
+                next = node.getNext();
+                prev = node.getPrev();
+
+                next.setPrev(prev);
+                prev.setNext(next);
+
+                node.setPrev(null);
+                node.setNext(null);
+
+                nodeValue = node.getValue();
+            }
+            else
+            {
+                throw new IllegalArgumentException("ERROR: Node not in list, cannot remove");
+            }
+        }
+        return nodeValue;
+    }
+
 }
 
 
