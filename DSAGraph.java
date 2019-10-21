@@ -1,9 +1,3 @@
-//Need graph nodes
-//List of edges (different modes of transportations ect)
-//different times ect
-
-//create vertex using a linked list, then create DSAGraphVertex
-
 /*******************************************************************************
  * Author: Miles Cremen 19142852
  * File name: DSAGraph
