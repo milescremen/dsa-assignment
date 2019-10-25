@@ -227,55 +227,65 @@ public class DSALinkedList implements Iterable, Serializable
         {   
             nodeValue = tail.getValue();
             tail = tail.getPrev();
+            tail.setNext(null);
         }
         return nodeValue;
     }
 
     public Object remove(Object inObject)
     {
+        DSAListNode temp;
+        DSAListNode currNode;
         Object nodeValue;
-        DSAListNode node;
         DSAListNode next;
         DSAListNode prev;
-
+        nodeValue = null;
+        
         if(isEmpty())
         {
             throw new IllegalArgumentException("ERROR: List is empty");
         }
-        else if(head.getNext() == null)
+        else if(head.getValue().equals(inObject)) /* If object to delete is the same as head */
         {
-            nodeValue = head.getValue();
-            head = head.getNext();
+            removeFirst();
         }
-        else
+        else if(tail.getValue().equals(inObject))
         {
-            Iterator iter = iterator();
-            nodeValue = iter.next();
-            while(iter.hasNext() && !inObject.equals(nodeValue))
+            removeLast();
+            System.out.println("LAST REMOVED");
+        }
+        else /* Otherwise we need to check the rest of the list */
+        {
+            currNode = head;
+            while(currNode != null && !inObject.equals(nodeValue))
             {
-                nodeValue = iter.next();
+                nodeValue = currNode.getValue();
+                if(!inObject.equals(nodeValue))
+                {
+                    currNode = currNode.next;
+                }
             }
 
-            if(inObject.equals(nodeValue))
+            /* Checks if we finished, if not then a match was found */ 
+            if(currNode != null)
             {
                 //Sets the previous's next 
-                node = (DSAListNode)inObject;
-                next = node.getNext();
-                prev = node.getPrev();
+                next = currNode.getNext();
+                prev = currNode.getPrev();
 
                 next.setPrev(prev);
                 prev.setNext(next);
 
-                node.setPrev(null);
-                node.setNext(null);
+                currNode.setPrev(null);
+                currNode.setNext(null);
 
-                nodeValue = node.getValue();
+                nodeValue = currNode.getValue();
             }
             else
             {
                 throw new IllegalArgumentException("ERROR: Node not in list, cannot remove");
             }
-        }
+        } 
         return nodeValue;
     }
 

@@ -13,14 +13,14 @@ public class DSAGraph
     {
         //Private classfields
         private String label;
-        private Object value;
+        private DSALinkedList posts;
         private DSALinkedList links;
         private boolean visited;
 
-        public DSAGraphVertex(String label, Object value)
+        public DSAGraphVertex(String label)
         {
             this.label = label;
-            this.value = value;
+            this.posts = new DSALinkedList(); 
             this.links = new DSALinkedList();
             this.visited = false;
         }            
@@ -30,9 +30,9 @@ public class DSAGraph
             return this.label;
         }
 
-        public Object getValue()
+        public DSALinkedList getPosts()
         {
-            return this.value;
+            return this.posts;
         }
 
         public DSALinkedList getAdjacent()
@@ -75,11 +75,12 @@ public class DSAGraph
         public String toString()
         {
             String adjacent = "";
-            for(Iterator iter = links.iterator(); iter.hasNext();)
+            Iterator iter = links.iterator();
+            while(iter.hasNext())
             {
                 adjacent += ((DSAGraphVertex)iter.next()).getLabel() + " ";
             }
-            return this.getLabel() + " : " + adjacent; 
+            return this.getLabel() + "\t\tFollowers: " + adjacent; 
         }
     }
 
@@ -91,29 +92,36 @@ public class DSAGraph
         this.vertices = new DSALinkedList();
     }
 
-    public void addVertex(String label, Object value)
+    public void addVertex(String label)
     {
         //If statement, makes sure we don't get any duplicates
         if(!this.hasVertex(label))
         {
-            this.vertices.insertLast(new DSAGraphVertex(label, value));
+            this.vertices.insertLast(new DSAGraphVertex(label));
         }
     }
 
     public void removeVertex(String label)
     {
-        DSAGraphVertex vertex = getVertex(label);
+        DSAGraphVertex inVertex = (DSAGraphVertex)getVertex(label);
         String edgeName;
+        DSAGraphVertex temp;
         if(this.hasVertex(label))
         {
-            Iterator iter = vertex.getAdjacent().iterator();
-            edgeName = ((DSAGraphVertex)iter.next()).getLabel();
+            Iterator iter = vertices.iterator();
             while(iter.hasNext())
             {
-                removeEdge(label, edgeName);
-                edgeName = ((DSAGraphVertex)iter.next()).getLabel();
+                temp = (DSAGraphVertex)iter.next();
+                edgeName = temp.getLabel();
+                System.out.println(edgeName);
+
+                if(hasEdge(edgeName, label))
+                {
+                    removeEdge(edgeName, label);
+                }
             }
-            this.vertices.remove(label);
+
+            vertices.remove(inVertex);
         }
     }
 
@@ -123,8 +131,8 @@ public class DSAGraph
             vertices list */
         DSAGraphVertex vertexOne;
         DSAGraphVertex vertexTwo;
-        vertexOne = getVertex(labelOne);
-        vertexTwo = getVertex(labelTwo);
+        vertexOne = (DSAGraphVertex)getVertex(labelOne);
+        vertexTwo = (DSAGraphVertex)getVertex(labelTwo);
 
         /* Adds each vertex to the other vertex's links list */
         vertexOne.addEdge(vertexTwo);
@@ -135,10 +143,32 @@ public class DSAGraph
     {
         DSAGraphVertex vertexOne;
         DSAGraphVertex vertexTwo;
-        vertexOne = getVertex(labelOne);
-        vertexTwo = getVertex(labelTwo);
+        vertexOne = (DSAGraphVertex)getVertex(labelOne);
+        vertexTwo = (DSAGraphVertex)getVertex(labelTwo);
 
         vertexOne.removeEdge(vertexTwo);
+    }
+    
+    /* Checks if labelTwo is in labelOnes links list */
+    public boolean hasEdge(String labelOne, String labelTwo)
+    {
+        boolean hasEdge = false;
+        DSAGraphVertex tempOne;
+        DSAGraphVertex tempTwo;
+
+        tempOne = (DSAGraphVertex)getVertex(labelOne);
+
+        Iterator iter = tempOne.getAdjacent().iterator();
+        while(iter.hasNext())
+        {
+            tempTwo = (DSAGraphVertex)iter.next();
+            if(labelTwo.equals(tempTwo.getLabel()))
+            {
+                hasEdge = true;
+            }
+        }
+        System.out.println("hasEdge: " + labelOne + " " + labelTwo + " " + hasEdge);
+        return hasEdge;
     }
 
     /* Iterates through the vertices stored in the linked list and 
@@ -154,7 +184,7 @@ public class DSAGraph
         while(iter.hasNext())// && !iter.next().equals(label))
         {
             temp = (DSAGraphVertex)iter.next();
-            System.out.println(temp);
+            //System.out.println(temp);
             if(temp.getLabel().equals(label))
             {
                 hasVertex = true;
@@ -169,7 +199,8 @@ public class DSAGraph
     public int getVertexCount()
     {
         int count = 0;
-        for(Iterator iter = vertices.iterator(); iter.hasNext();)
+        Iterator iter = vertices.iterator();
+        while(iter.hasNext())
         {
             count++;
             iter.next();
@@ -181,12 +212,11 @@ public class DSAGraph
         if they match the imported value, if so it will return that vertex
         - WHILE loop used because i don't want to keep looping if vertex is
         found - */
-    public DSAGraphVertex getVertex(String label)
+    public Object getVertex(String label)
     {
         DSAGraphVertex found = null;
         DSAGraphVertex currVertex;
         Iterator iter = vertices.iterator();
-
         while(iter.hasNext()) // && !iter.next().equals(label))
         {
             currVertex = (DSAGraphVertex)iter.next();
@@ -207,12 +237,14 @@ public class DSAGraph
         adjacent vertices with getAdjacent */
     public DSALinkedList getAdjacent(String label)
     {
-        return getVertex(label).getAdjacent();
+        DSAGraphVertex vertex = (DSAGraphVertex)getVertex(label);
+        return vertex.getAdjacent();
     } 
 
     public void displayAsList()
     {
-        for(Iterator iter = vertices.iterator(); iter.hasNext();)
+        Iterator iter = vertices.iterator();
+        while(iter.hasNext())
         {
             System.out.println(iter.next().toString());
         }
@@ -222,11 +254,12 @@ public class DSAGraph
     public boolean isAdjacent(String labelOne, String labelTwo)
     {
         DSAGraphVertex temp;
-        DSAGraphVertex vertexOne = getVertex(labelOne);
+        DSAGraphVertex vertexOne = (DSAGraphVertex)getVertex(labelOne);
 
         boolean isAdjacent = false;
         //Iterates through the adjacent list of vertex one and checks label two against it
-        for(Iterator iter = vertexOne.getAdjacent().iterator(); iter.hasNext();)
+        Iterator iter = vertexOne.getAdjacent().iterator();
+        while(iter.hasNext())
         {   
             temp = (DSAGraphVertex)iter.next();
             if(temp.getLabel().equals(labelTwo))
@@ -244,14 +277,15 @@ public class DSAGraph
         String output = "";
         DSALinkedList list;
         System.out.print(" ");
-        for(Iterator iter = vertices.iterator(); iter.hasNext();)
+        Iterator iter = vertices.iterator();
+        while(iter.hasNext())
         {
             temp1 = (DSAGraphVertex)iter.next();
             System.out.print(" " + temp1.getLabel());
             
             output += "\n" + temp1.getLabel() + " ";
-
-            for(Iterator iter2 = vertices.iterator(); iter2.hasNext();)
+            Iterator iter2 = vertices.iterator();
+            while(iter2.hasNext())
             {
                 temp2 = (DSAGraphVertex)iter2.next();
                 if(isAdjacent(temp1.getLabel(), temp2.getLabel()))
@@ -267,5 +301,32 @@ public class DSAGraph
         System.out.println(output);
     }
 
+    public void addPost(String name, String message)
+    {
+        DSAGraphVertex person;
+        Post newPost;
+        if(!hasVertex(name))
+        {
+            throw new IllegalArgumentException("ERROR: Person doesn't exist in the network");
+        }
+        /* if the person is in the graph, then we create a newPost object and store it in the posts linkedlist */
+        person = (DSAGraphVertex)getVertex(name);
+        newPost = new Post(message);
+        person.posts.insertLast(newPost);
+    }
+
+    public void removePost(String name, String message)
+    {
+        DSAGraphVertex person;
+        if(!hasVertex(name))
+        {
+            throw new IllegalArgumentException("ERROR: Person doesn't exist in the network");
+        }
+
+        person = (DSAGraphVertex)getVertex(name);
+        person.posts.remove(message); /* this doesn't work im sure */
+
+    
+    }
    
 }

@@ -11,7 +11,7 @@ public class UserInterface
             "(1) Load network\n" +
             "(2) Set probabilities\n" +
             "(3) Node operations (find, insert, delete)\n" + 
-            "(4) Edge operations (like/follow - add, remove)\n" + 
+            "(4) Edge operations (follow - add, remove)\n" + 
             "(5) New post\n" + 
             "(6) Display network\n" +
             "(7) Display statistics\n" +
@@ -19,6 +19,7 @@ public class UserInterface
             "(9) Save network\n" +
             "(10) Exit";
 
+        FileManager.loadNetwork("network.txt", people);
         do
         {
             menuValue = validateInteger(menuPrompt, 1, 10);
@@ -36,11 +37,11 @@ public class UserInterface
                     break;
                 /* Node operations */
                 case 3:
-                    nodeMenu(interactive);
+                    nodeMenu(interactive, people);
                     break;
                 /* Edge operations */
                 case 4:
-                    edgeMenu();
+                    edgeMenu(interactive, people);
                     break; 
                 /* New post */
                 case 5: 
@@ -67,7 +68,7 @@ public class UserInterface
         } while(menuValue != 10);
     }
 
-    private static void nodeMenu(Interactive interactive)
+    private static void nodeMenu(Interactive interactive, DSAGraph people)
     {
         String menuPrompt;
         int menuValue;
@@ -87,17 +88,17 @@ public class UserInterface
                 /* Find a person */
                 case 1:
                     name = validateString("Please enter a name");
-                    System.out.println(interactive.findPerson(name).toString()); 
+                    System.out.println(people.getVertex(name).toString()); 
                     break;
                 /* Insert a person */
                 case 2:
                     name = validateString("Please enter a name");
-                    interactive.insertPerson(name);
+                    people.addVertex(name);
                     break;
                 /* Delete a person */
                 case 3:
                     name = validateString("Please enter a name");
-                    interactive.removePerson(name);
+                    people.removeVertex(name);
                     break;
                 case 4:
                     System.out.println("Returning to previous menu");
@@ -106,40 +107,40 @@ public class UserInterface
         } while(menuValue != 4);
     }
 
-    private static void edgeMenu()
+    private static void edgeMenu(Interactive interactive, DSAGraph people)
     {
         String menuPrompt;
         int menuValue;
+        String nameOne; 
+        String nameTwo;
 
         menuPrompt = "Please select from the following options\n" +
-            "(1) Add a like\n" +
-            "(2) Remove a like\n" +
-            "(3) Add a follow\n" +
-            "(4) Remove a follow\n" +
-            "(5) Return to previous menu";
+            "(1) Add a follow\n" +
+            "(2) Remove a follow\n" +
+            "(3) Return to previous menu";
         do
         {
-            menuValue = validateInteger(menuPrompt, 1, 4);
+            menuValue = validateInteger(menuPrompt, 1, 3);
 
             switch(menuValue)
             {
-                /* Add a like */
-                case 1:
-                    break;
-                /* Remove a like */
-                case 2:
-                    break;
                 /* Add a follow */
-                case 3:
+                case 1:
+                    nameOne = validateString("Please enter a name of the person to follow");
+                    nameTwo = validateString("Please enter a name of the person who wants to follow " + nameOne);
+                    people.addEdge(nameOne, nameTwo);
                     break;
                 /* Remove a follow */
-                case 4:
+                case 2:
+                    nameOne = validateString("Please enter a name of the person to remove the follow");
+                    nameTwo = validateString("Please enter a name of the person who wants to stop following " + nameOne);
+                    people.removeEdge(nameOne, nameTwo); 
                     break;
-                case 5:
+                case 3:
                     System.out.println("Returning to previous menu");
                     break;
             }
-        } while(menuValue != 5);
+        } while(menuValue != 3);
     }
 
     private static int validateInteger(String prompt, int min, int max)
